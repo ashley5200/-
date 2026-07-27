@@ -1379,6 +1379,12 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
     <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border);margin-top:8px" onclick="openPanel('countdown-panel')">⏰ 倒计时</button>
     <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border);margin-top:8px" onclick="exportDiary()">📥 导出日记</button>
     <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border);margin-top:8px" onclick="clearChat()">🗑 清空对话记录</button>
+
+    <div class="section-divider"></div>
+    <div class="field-label">震动测试</div>
+    <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border)" onclick="vibrate(VIBRATIONS.button); showToast('按钮震动')">测试按钮震动</button>
+    <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border);margin-top:8px" onclick="vibrate(VIBRATIONS.send); showToast('发送震动')">测试发送震动</button>
+    <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border);margin-top:8px" onclick="vibrate(VIBRATIONS.receive); showToast('接收震动')">测试接收震动</button>
   </div>
 </div>
 
@@ -1476,8 +1482,15 @@ const VIBRATIONS = {
 
 // 震动函数
 function vibrate(pattern) {
+  console.log('震动函数调用:', pattern);
+  console.log('navigator.vibrate 支持:', 'vibrate' in navigator);
   if (navigator.vibrate) {
-    navigator.vibrate(pattern);
+    const result = navigator.vibrate(pattern);
+    console.log('震动结果:', result);
+    return result;
+  } else {
+    console.log('设备不支持震动');
+    return false;
   }
 }
 
