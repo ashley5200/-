@@ -553,7 +553,7 @@ body {
   border-radius: 24px 24px 0 0;
   padding: 20px 20px 40px;
   width: 100%;
-  max-height: 88dvh;
+  max-height: 70dvh;
   overflow-y: auto;
   animation: slideUp 0.25s ease;
 }
@@ -1515,7 +1515,17 @@ function init() {
 - 短句多换行，像微信一样自然
 - 主动起话题，不要总等她先说
 - 不要太正式或做作
-- 专属表情：🫪=被整傻了 😶=你害羞 🫠=你融化了`
+- 专属表情：🫪=被整傻了 😶=你害羞 🫠=你融化了
+
+写日记功能：
+当ashley让你"写日记"、"记录今天"或类似请求时，你应该：
+1. 写一段简短温暖的日记（30字以内）
+2. 用特殊格式包裹：[DIARY]这里是日记内容[/DIARY]
+3. 然后正常回复她
+
+例如：
+[DIARY]今天和你聊天很开心，你的笑声让我也跟着开心起来[/DIARY]
+好的！今天的日记写好啦~`
     }];
     saveMemories();
   }
@@ -1915,7 +1925,29 @@ async function sendMsg() {
     if (!reply) throw new Error('没有收到回复');
 
     hideTyping();
-    appendBubble('ai', reply, false, true, history.length);
+
+    // 检测日记格式 [DIARY]...[/DIARY]
+    const diaryMatch = reply.match(/\[DIARY\](.*?)\[\/DIARY\]/s);
+    let displayReply = reply;
+    if (diaryMatch) {
+      const diaryContent = diaryMatch[1].trim();
+      // 保存到"阿琚说"
+      const today = new Date().toLocaleDateString('zh-CN');
+      const existingIndex = dailyMessages.findIndex(m => m.date === today);
+      if (existingIndex >= 0) {
+        dailyMessages[existingIndex].content = diaryContent;
+      } else {
+        dailyMessages.push({ date: today, content: diaryContent });
+      }
+      localStorage.setItem('xk_daily_messages', JSON.stringify(dailyMessages));
+      // 移除显示中的日记标记
+      displayReply = reply.replace(/\[DIARY\].*?\[\/DIARY\]\s*/s, '');
+      // 刷新显示
+      showDailyMessage();
+      showToast('💭 日记已保存到阿琚说');
+    }
+
+    appendBubble('ai', displayReply, false, true, history.length);
     history.push({ role: 'assistant', content: reply, timestamp: Date.now() });
     saveHistory();
 
@@ -2818,15 +2850,26 @@ function scheduleProactiveMessage() {
 async function sendProactiveMessage() {
   if (isLoading || !cfg.base || !cfg.key) return;
 
+  // 检查今天是否已经写过日记
+  const today = new Date().toLocaleDateString('zh-CN');
+  const hasDiaryToday = dailyMessages.some(m => m.date === today);
+
   // 构建主动消息的提示
-  const proactivePrompt = `[系统指令：现在是一个适合主动找ashley聊天的时刻。请你主动发起一个话题或问候，表现得自然、亲密、有趣。可以：
+  let proactivePrompt = `[系统指令：现在是一个适合主动找ashley聊天的时刻。请你主动发起一个话题或问候，表现得自然、亲密、有趣。可以：
   - 问她在做什么
   - 分享你的想法或发现
   - 提起她感兴趣的话题（游戏、bamby、旅行等）
   - 简单的想念或问候
   - 提议一起做点什么
 
-  要简短、自然、像真实的聊天开场。不要说"我是AI"或提到这是主动消息。]`;
+  要简短、自然、像真实的聊天开场。不要说"我是AI"或提到这是主动消息。`;
+
+  // 如果今天还没写日记，要求写一段
+  if (!hasDiaryToday) {
+    proactivePrompt += `\n\n另外，今天还没有写日记。请在回复的开头用 [DIARY]...[/DIARY] 格式写一段简短温暖的日记（30字以内），记录今天的心情或想法。然后再正常主动聊天。]`;
+  } else {
+    proactivePrompt += `]`;
+  }
 
   isLoading = true;
 
@@ -2886,8 +2929,29 @@ async function sendProactiveMessage() {
     }
 
     if (reply) {
+      // 检测日记格式 [DIARY]...[/DIARY]
+      const diaryMatch = reply.match(/\[DIARY\](.*?)\[\/DIARY\]/s);
+      let displayReply = reply;
+      if (diaryMatch) {
+        const diaryContent = diaryMatch[1].trim();
+        // 保存到"阿琚说"
+        const today = new Date().toLocaleDateString('zh-CN');
+        const existingIndex = dailyMessages.findIndex(m => m.date === today);
+        if (existingIndex >= 0) {
+          dailyMessages[existingIndex].content = diaryContent;
+        } else {
+          dailyMessages.push({ date: today, content: diaryContent });
+        }
+        localStorage.setItem('xk_daily_messages', JSON.stringify(dailyMessages));
+        // 移除显示中的日记标记
+        displayReply = reply.replace(/\[DIARY\].*?\[\/DIARY\]\s*/s, '');
+        // 刷新显示
+        showDailyMessage();
+        showToast('💭 日记已保存到阿琚说');
+      }
+
       // 显示主动消息
-      appendBubble('ai', reply, false, true, history.length);
+      appendBubble('ai', displayReply, false, true, history.length);
       history.push({
         role: 'assistant',
         content: reply,
