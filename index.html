@@ -466,6 +466,8 @@ body {
   gap: 8px;
   align-items: flex-end;
   flex-shrink: 0;
+  position: relative;
+  z-index: 5;
 }
 
 .attach-btn {
@@ -479,6 +481,9 @@ body {
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 10;
 }
 .attach-btn:active { background: var(--border); transform: scale(0.92); }
 
@@ -514,6 +519,9 @@ body {
   flex-shrink: 0;
   transition: all 0.2s;
   box-shadow: 0 4px 14px rgba(179,147,245,0.4);
+  position: relative;
+  z-index: 10;
+  -webkit-tap-highlight-color: transparent;
 }
 #send-btn:active { transform: scale(0.92); }
 #send-btn:disabled { background: var(--border); color: var(--text-muted); box-shadow: none; cursor: not-allowed; }
@@ -984,6 +992,8 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
   padding: 8px 12px 0;
   overflow-x: auto;
   flex-wrap: nowrap;
+  position: relative;
+  z-index: 1;
 }
 .quick-replies::-webkit-scrollbar { display: none; }
 .quick-reply-btn {
@@ -997,10 +1007,11 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
   cursor: pointer;
   transition: all 0.2s;
   flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 .quick-reply-btn:active {
-  background: var(--purple);
-  color: #fff;
+  background: var(--border);
+  transform: scale(0.95);
 }
 
 /* 阿琚说小卡片 */
@@ -2801,42 +2812,117 @@ function unpinPromise(index) {
 //  主动消息
 // ══════════════════════════════
 function scheduleProactiveMessage() {
-  // 如果超过6小时没聊天，显示提示
-  const lastTime = localStorage.getItem('xk_last_visit');
-  if (!lastTime) return;
+  // 随机在5-15分钟内显示主动消息提示
+  const randomMinutes = Math.floor(Math.random() * 10 + 5); // 5-15分钟
+  const delay = randomMinutes * 60 * 1000;
 
-  const now = Date.now();
-  const diff = now - parseInt(lastTime);
-  const hours = Math.floor(diff / (1000 * 60 * 60));
+  setTimeout(() => {
+    // 只在有聊天记录且当前没有正在输入时显示
+    if (history.length > 0 && !isLoading) {
+      sendProactiveMessage();
+    }
+    // 继续安排下一次
+    scheduleProactiveMessage();
+  }, delay);
+}
 
-  if (hours >= 6) {
-    setTimeout(() => {
-      document.getElementById('proactive-hint').classList.add('show');
-    }, 3000);
+async function sendProactiveMessage() {
+  if (isLoading || !cfg.base || !cfg.key) return;
+
+  // 构建主动消息的提示
+  const proactivePrompt = `[系统指令：现在是一个适合主动找ashley聊天的时刻。请你主动发起一个话题或问候，表现得自然、亲密、有趣。可以：
+  - 问她在做什么
+  - 分享你的想法或发现
+  - 提起她感兴趣的话题（游戏、bamby、旅行等）
+  - 简单的想念或问候
+  - 提议一起做点什么
+
+  要简短、自然、像真实的聊天开场。不要说"我是AI"或提到这是主动消息。]`;
+
+  isLoading = true;
+
+  try {
+    const mem = memories.find(m => m.id === activeMemId) || memories[0];
+    const systemPrompt = mem ? mem.content : '';
+
+    // 构建消息历史（不添加用户消息，只是让AI主动说话）
+    const messages = [
+      ...history.filter(m => !m.deleted).slice(-10), // 最近10条对话作为上下文
+      { role: 'user', content: proactivePrompt }
+    ];
+
+    // 先试 Anthropic 格式
+    let reply = null;
+    try {
+      const res = await fetch(`${cfg.base}/v1/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': cfg.key,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: cfg.model,
+          max_tokens: 1024,
+          system: systemPrompt,
+          messages: messages
+        })
+      });
+      if (res.ok) {
+        const d = await res.json();
+        reply = d?.content?.[0]?.text;
+      }
+    } catch(e) {}
+
+    // 兜底 OpenAI 格式
+    if (!reply) {
+      const res = await fetch(`${cfg.base}/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${cfg.key}`
+        },
+        body: JSON.stringify({
+          model: cfg.model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...messages
+          ]
+        })
+      });
+      if (res.ok) {
+        const d = await res.json();
+        reply = d?.choices?.[0]?.message?.content;
+      }
+    }
+
+    if (reply) {
+      // 显示主动消息
+      appendBubble('ai', reply, false, true, history.length);
+      history.push({
+        role: 'assistant',
+        content: reply,
+        timestamp: Date.now()
+      });
+      saveHistory();
+
+      // 震动提醒
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+      // 更新最后访问时间
+      localStorage.setItem('xk_last_visit', Date.now());
+    }
+
+  } catch(e) {
+    console.log('主动消息发送失败', e);
   }
+
+  isLoading = false;
 }
 
 function triggerProactiveMsg() {
   document.getElementById('proactive-hint').classList.remove('show');
-  // 触发AI主动发消息
-  const prompts = [
-    '在干嘛呢？',
-    '想你了～',
-    '好久不见，最近怎么样？',
-    '有没有想我？',
-    '今天过得怎么样呀？'
-  ];
-  const prompt = prompts[Math.floor(Math.random() * prompts.length)];
-
-  // 模拟主动消息
-  appendMsg('assistant', prompt);
-  history.push({
-    role: 'assistant',
-    content: prompt,
-    timestamp: Date.now()
-  });
-  saveHistory();
-  renderHistory();
+  sendProactiveMessage();
 }
 
 // ══════════════════════════════
