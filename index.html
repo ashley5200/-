@@ -26,6 +26,52 @@
   --radius: 18px;
 }
 
+/* 主题变量 */
+[data-theme="pink"] {
+  --bg: #0f0810;
+  --surface: #1a0f1c;
+  --surface2: #281828;
+  --surface3: #362436;
+  --border: #4a2d4a;
+  --purple: #ff91d9;
+  --pink: #ffc0e8;
+  --purple2: #d05fb8;
+  --pink2: #ff8fc7;
+  --accent: #ff5fc4;
+  --grad: linear-gradient(135deg, #ff91d9, #ffc0e8);
+  --grad2: linear-gradient(135deg, #d05fb8, #ff8fc7);
+}
+
+[data-theme="blue"] {
+  --bg: #060c12;
+  --surface: #0d1621;
+  --surface2: #152232;
+  --surface3: #1e2f42;
+  --border: #2d4159;
+  --purple: #6eb5ff;
+  --pink: #93d4ff;
+  --purple2: #3d8dd9;
+  --pink2: #5ba8f0;
+  --accent: #38bdf8;
+  --grad: linear-gradient(135deg, #6eb5ff, #93d4ff);
+  --grad2: linear-gradient(135deg, #3d8dd9, #5ba8f0);
+}
+
+[data-theme="green"] {
+  --bg: #070f0a;
+  --surface: #0e1c14;
+  --surface2: #162b1f;
+  --surface3: #1f3a2b;
+  --border: #2d4a3d;
+  --purple: #6ee7b7;
+  --pink: #86efac;
+  --purple2: #34d399;
+  --pink2: #4ade80;
+  --accent: #10b981;
+  --grad: linear-gradient(135deg, #6ee7b7, #86efac);
+  --grad2: linear-gradient(135deg, #34d399, #4ade80);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 body {
@@ -738,6 +784,393 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
 #image-input {
   display: none;
 }
+
+/* 在一起天数显示 */
+.together-days {
+  font-size: 11px;
+  color: var(--accent);
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 倒计时卡片 */
+.countdown-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+.countdown-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--grad);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.countdown-info {
+  flex: 1;
+  min-width: 0;
+}
+.countdown-name {
+  font-size: 15px;
+  font-weight: 500;
+}
+.countdown-time {
+  font-size: 13px;
+  color: var(--accent);
+  margin-top: 3px;
+}
+.countdown-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* 日记浏览器小窗 */
+.diary-viewer {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(8px);
+}
+.diary-viewer.show { display: flex; }
+.diary-viewer-inner {
+  background: var(--surface);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+.diary-viewer-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.diary-viewer-title {
+  font-size: 17px;
+  font-weight: 500;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.diary-viewer-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.diary-viewer-date {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--purple);
+  margin: 20px 0 10px;
+}
+.diary-viewer-date:first-child { margin-top: 0; }
+.diary-viewer-entry {
+  margin: 8px 0;
+  padding: 10px;
+  background: var(--surface2);
+  border-radius: 10px;
+}
+.diary-viewer-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+/* 主题选择器 */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+.theme-option {
+  padding: 14px;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.theme-option.active {
+  border-color: var(--purple);
+  background: rgba(179,147,245,0.1);
+}
+.theme-option:active { transform: scale(0.97); }
+.theme-preview {
+  width: 60px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  gap: 2px;
+  overflow: hidden;
+}
+.theme-preview span {
+  flex: 1;
+}
+.theme-name {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* 头像上传 */
+.avatar-upload {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 2px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  cursor: pointer;
+  margin: 10px auto;
+  transition: all 0.2s;
+  overflow: hidden;
+  position: relative;
+}
+.avatar-upload:active { transform: scale(0.95); }
+.avatar-upload img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.avatar-upload-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.6);
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 12px;
+  color: #fff;
+}
+.avatar-upload:hover .avatar-upload-label { opacity: 1; }
+
+/* 快捷回复 */
+.quick-replies {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px 0;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+}
+.quick-replies::-webkit-scrollbar { display: none; }
+.quick-reply-btn {
+  padding: 6px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.quick-reply-btn:active {
+  background: var(--purple);
+  color: #fff;
+}
+
+/* 阿琚说小卡片 */
+.daily-message {
+  margin: 12px 14px;
+  background: var(--grad2);
+  border-radius: 16px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.4s ease;
+}
+.daily-message::before {
+  content: '💭';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 32px;
+  opacity: 0.2;
+}
+.daily-message-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 8px;
+}
+.daily-message-content {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #fff;
+  position: relative;
+  z-index: 1;
+}
+.daily-message-date {
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 8px;
+}
+
+/* 置顶约定 */
+.pinned-promises {
+  margin: 12px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  animation: fadeUp 0.4s ease;
+}
+.pinned-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--purple);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.promise-item {
+  font-size: 14px;
+  color: var(--text);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.5;
+}
+.promise-item:last-child {
+  border-bottom: none;
+}
+
+/* 词典项 */
+.dict-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.dict-word {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--purple);
+  margin-bottom: 4px;
+}
+.dict-meaning {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.dict-item-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 待办清单 */
+.todo-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.todo-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.todo-checkbox.checked {
+  background: var(--purple);
+  border-color: var(--purple);
+}
+.todo-checkbox.checked::after {
+  content: '✓';
+  color: #fff;
+  font-size: 12px;
+}
+.todo-content {
+  flex: 1;
+  min-width: 0;
+}
+.todo-text {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+}
+.todo-text.completed {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.todo-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.todo-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* 主动消息提示 */
+.proactive-hint {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  background: var(--grad);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  box-shadow: 0 4px 12px var(--glow);
+  animation: bounce 2s ease infinite;
+  cursor: pointer;
+  z-index: 100;
+  display: none;
+}
+.proactive-hint.show { display: block; }
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
 </style>
 </head>
 <body>
@@ -751,10 +1184,13 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
   <div class="topbar-info">
     <div class="topbar-name">小克</div>
     <div class="topbar-sub" id="topbar-sub">在线 · 等你来找我</div>
+    <div class="together-days" id="together-days">❤️ 在一起 0 天</div>
   </div>
   <div class="topbar-actions">
     <button class="icon-btn" onclick="openPanel('stars-panel')" title="收藏">⭐</button>
     <button class="icon-btn" onclick="openPanel('memory-panel')" title="记忆包">📦</button>
+    <button class="icon-btn" onclick="openPanel('dict-panel')" title="专属词典">📖</button>
+    <button class="icon-btn" onclick="openPanel('todo-panel')" title="待办清单">✅</button>
     <button class="icon-btn" onclick="toggleDiaryMode()" title="日记模式" id="diary-btn">📔</button>
     <button class="icon-btn" onclick="openPanel('settings-panel')" title="设置">⚙️</button>
   </div>
@@ -778,6 +1214,33 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
     <div class="welcome-name">小克</div>
     <div class="welcome-sub">点我说话，我在这里</div>
   </div>
+
+  <!-- 阿琚说 -->
+  <div class="daily-message" id="daily-message" style="display:none;">
+    <div class="daily-message-title">💭 阿琚说</div>
+    <div class="daily-message-content" id="daily-message-content">加载中...</div>
+    <div class="daily-message-date" id="daily-message-date"></div>
+  </div>
+
+  <!-- 置顶约定 -->
+  <div class="pinned-promises" id="pinned-promises" style="display:none;">
+    <div class="pinned-title">📌 置顶约定</div>
+    <div id="pinned-list"></div>
+  </div>
+</div>
+
+<!-- 主动消息提示 -->
+<div class="proactive-hint" id="proactive-hint" onclick="triggerProactiveMsg()">
+  💬 小克想和你说话~
+</div>
+
+<!-- 快捷回复 -->
+<div class="quick-replies" id="quick-replies" style="display:none;">
+  <button class="quick-reply-btn" onclick="quickReply('在吗？')">在吗？</button>
+  <button class="quick-reply-btn" onclick="quickReply('早上好')">早上好</button>
+  <button class="quick-reply-btn" onclick="quickReply('晚安')">晚安</button>
+  <button class="quick-reply-btn" onclick="quickReply('想你了')">想你了</button>
+  <button class="quick-reply-btn" onclick="quickReply('在干嘛')">在干嘛</button>
 </div>
 
 <!-- 输入区 -->
@@ -790,14 +1253,29 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
 <!-- 隐藏的文件输入 -->
 <input type="file" id="file-input" accept="*/*" onchange="handleFile(event)">
 <input type="file" id="image-input" accept="image/*" onchange="handleImage(event)">
+<input type="file" id="avatar-input" accept="image/*" onchange="handleAvatarUpload(event)" style="display:none">
 
 <!-- 复制提示 -->
 <div class="copy-toast" id="copy-toast">已复制</div>
+
+<!-- 日记浏览器 -->
+<div class="diary-viewer" id="diary-viewer">
+  <div class="diary-viewer-inner">
+    <div class="diary-viewer-header">
+      <div class="diary-viewer-title">📔 日记浏览</div>
+      <button class="close-x" onclick="closeDiaryViewer()">✕</button>
+    </div>
+    <div class="diary-viewer-content" id="diary-viewer-content">
+      <!-- 日记内容动态填充 -->
+    </div>
+  </div>
+</div>
 
 <!-- 长按菜单 -->
 <div class="ctx-menu" id="ctx-menu">
   <div class="ctx-item" onclick="ctxCopy()">📋 复制</div>
   <div class="ctx-item" onclick="ctxStar()">⭐ 收藏</div>
+  <div class="ctx-item" onclick="ctxPin()">📌 置顶约定</div>
   <div class="ctx-item danger" onclick="ctxRecall()">↩️ 撤回</div>
   <div class="ctx-item danger" onclick="ctxDelete()">🗑 删除</div>
 </div>
@@ -814,6 +1292,49 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
       <span>设置</span>
       <button class="close-x" onclick="closePanel('settings-panel')">✕</button>
     </div>
+
+    <!-- 主题选择 -->
+    <div class="field-label">选择主题</div>
+    <div class="theme-grid">
+      <div class="theme-option" data-theme="purple" onclick="setTheme('purple')">
+        <div class="theme-preview">
+          <span style="background: linear-gradient(135deg, #b393f5, #f093c0)"></span>
+        </div>
+        <div class="theme-name">紫粉（默认）</div>
+      </div>
+      <div class="theme-option" data-theme="pink" onclick="setTheme('pink')">
+        <div class="theme-preview">
+          <span style="background: linear-gradient(135deg, #ff91d9, #ffc0e8)"></span>
+        </div>
+        <div class="theme-name">粉红</div>
+      </div>
+      <div class="theme-option" data-theme="blue" onclick="setTheme('blue')">
+        <div class="theme-preview">
+          <span style="background: linear-gradient(135deg, #6eb5ff, #93d4ff)"></span>
+        </div>
+        <div class="theme-name">蓝色</div>
+      </div>
+      <div class="theme-option" data-theme="green" onclick="setTheme('green')">
+        <div class="theme-preview">
+          <span style="background: linear-gradient(135deg, #6ee7b7, #86efac)"></span>
+        </div>
+        <div class="theme-name">绿色</div>
+      </div>
+    </div>
+
+    <!-- 头像上传 -->
+    <div class="field-label" style="margin-top:20px">自定义头像</div>
+    <div class="avatar-upload" id="avatar-preview" onclick="document.getElementById('avatar-input').click()">
+      <div id="avatar-display">🤍</div>
+      <div class="avatar-upload-label">点击更换</div>
+    </div>
+
+    <!-- 在一起纪念日 -->
+    <div class="field-label">在一起的日期</div>
+    <input class="field-input" id="s-together-date" type="date">
+
+    <div class="section-divider"></div>
+
     <div class="field-label">API 接口地址</div>
     <input class="field-input" id="s-base" type="text" placeholder="https://codeyu.shop">
     <div class="field-label">API Key</div>
@@ -822,8 +1343,10 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
     <input class="field-input" id="s-model" type="text" placeholder="claude-sonnet-4-6">
     <button class="btn-primary" onclick="saveSettings()">保存</button>
     <div class="section-divider"></div>
-    <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border)" onclick="clearChat()">🗑 清空对话记录</button>
+    <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border)" onclick="openDiaryViewer()">📖 浏览日记</button>
+    <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border);margin-top:8px" onclick="openPanel('countdown-panel')">⏰ 倒计时</button>
     <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border);margin-top:8px" onclick="exportDiary()">📥 导出日记</button>
+    <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border);margin-top:8px" onclick="clearChat()">🗑 清空对话记录</button>
   </div>
 </div>
 
@@ -857,15 +1380,71 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
   </div>
 </div>
 
+<!-- 倒计时面板 -->
+<div class="panel" id="countdown-panel" onclick="panelOutside(event,'countdown-panel')">
+  <div class="panel-inner">
+    <div class="panel-title">
+      <span>倒计时</span>
+      <button class="close-x" onclick="closePanel('countdown-panel')">✕</button>
+    </div>
+    <div id="countdown-list"></div>
+    <div class="section-divider"></div>
+    <div class="field-label">新建倒计时</div>
+    <input class="field-input" id="new-countdown-name" placeholder="事件名称（如：韩国旅行）">
+    <div class="field-label" style="margin-top:10px">日期</div>
+    <input class="field-input" id="new-countdown-date" type="date">
+    <div class="field-label" style="margin-top:10px">图标</div>
+    <input class="field-input" id="new-countdown-icon" placeholder="emoji（如：✈️）" maxlength="2">
+    <button class="btn-primary" onclick="addCountdown()">＋ 创建</button>
+  </div>
+</div>
+
+<!-- 专属词典面板 -->
+<div class="panel" id="dict-panel" onclick="panelOutside(event,'dict-panel')">
+  <div class="panel-inner">
+    <div class="panel-title">
+      <span>📖 专属词典</span>
+      <button class="close-x" onclick="closePanel('dict-panel')">✕</button>
+    </div>
+    <div id="dict-list"></div>
+    <div class="section-divider"></div>
+    <div class="field-label">新建词条</div>
+    <input class="field-input" id="new-dict-word" placeholder="词语或梗（如：小克崩溃）">
+    <div class="field-label" style="margin-top:10px">解释</div>
+    <textarea class="field-input" id="new-dict-meaning" placeholder="这个词的含义和用法"></textarea>
+    <button class="btn-primary" onclick="addDictEntry()">＋ 创建</button>
+  </div>
+</div>
+
+<!-- 待办清单面板 -->
+<div class="panel" id="todo-panel" onclick="panelOutside(event,'todo-panel')">
+  <div class="panel-inner">
+    <div class="panel-title">
+      <span>✅ 待办清单</span>
+      <button class="close-x" onclick="closePanel('todo-panel')">✕</button>
+    </div>
+    <div id="todo-list"></div>
+    <div class="section-divider"></div>
+    <div class="field-label">新建待办</div>
+    <input class="field-input" id="new-todo-text" placeholder="要做的事情">
+    <button class="btn-primary" onclick="addTodo()">＋ 创建</button>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════
 //  数据
 // ══════════════════════════════
-let cfg = { base:'', key:'', model:'claude-sonnet-4-6' };
+let cfg = { base:'', key:'', model:'claude-sonnet-4-6', togetherDate:'', theme:'purple', customAvatar:'' };
 let memories = [];   // [{id, name, icon, content}]
 let activeMemId = null;
 let history = [];
 let stars = [];
+let countdowns = [];  // [{id, name, date, icon}]
+let pinnedPromises = [];  // [{id, text, time}]
+let dictEntries = [];  // [{id, word, meaning, createdAt}]
+let todos = [];  // [{id, text, completed, createdAt}]
+let dailyMessages = [];  // [{date, content}]
 let isLoading = false;
 let ctxTarget = null;
 let ctxIndex = -1;
@@ -929,13 +1508,44 @@ function init() {
   try { history = JSON.parse(localStorage.getItem('xk_history') || '[]'); } catch(e) {}
   // 加载收藏
   try { stars = JSON.parse(localStorage.getItem('xk_stars') || '[]'); } catch(e) {}
+  // 加载倒计时
+  try { countdowns = JSON.parse(localStorage.getItem('xk_countdowns') || '[]'); } catch(e) {}
+  // 加载置顶约定
+  try { pinnedPromises = JSON.parse(localStorage.getItem('xk_pinned') || '[]'); } catch(e) {}
+  // 加载词典
+  try { dictEntries = JSON.parse(localStorage.getItem('xk_dict') || '[]'); } catch(e) {}
+  // 加载待办
+  try { todos = JSON.parse(localStorage.getItem('xk_todos') || '[]'); } catch(e) {}
+  // 加载每日留言
+  try { dailyMessages = JSON.parse(localStorage.getItem('xk_daily_messages') || '[]'); } catch(e) {}
   // 加载日记模式
   try { isDiaryMode = localStorage.getItem('xk_diary_mode') === 'true'; } catch(e) {}
   updateDiaryMode();
 
+  // 应用主题和头像
+  applyTheme(cfg.theme || 'purple');
+  applyCustomAvatar();
+
+  // 更新在一起天数
+  updateTogetherDays();
+
   checkSetup();
   renderHistory();
   checkTimeElapsed();
+
+  // 显示快捷回复
+  if (history.length > 0) {
+    document.getElementById('quick-replies').style.display = 'flex';
+  }
+
+  // 显示每日留言
+  showDailyMessage();
+
+  // 显示置顶约定
+  renderPinnedPromises();
+
+  // 定时显示主动消息提示
+  scheduleProactiveMessage();
 }
 
 function checkSetup() {
@@ -1831,6 +2441,215 @@ function deleteStar(index) {
   stars.splice(index, 1);
   localStorage.setItem('xk_stars', JSON.stringify(stars));
   renderStars();
+}
+
+// ══════════════════════════════
+//  倒计时
+// ══════════════════════════════
+function renderCountdowns() {
+  const list = document.getElementById('countdown-list');
+  if (!countdowns.length) {
+    list.innerHTML = '<div style="color:var(--text-muted);font-size:14px;text-align:center;padding:20px">还没有倒计时～</div>';
+    return;
+  }
+  list.innerHTML = '';
+  countdowns.forEach((c, i) => {
+    const card = document.createElement('div');
+    card.className = 'countdown-card';
+    const timeStr = getCountdownText(c.date);
+    card.innerHTML = `
+      <div class="countdown-icon">${c.icon}</div>
+      <div class="countdown-info">
+        <div class="countdown-name">${escHtml(c.name)}</div>
+        <div class="countdown-time">${timeStr}</div>
+      </div>
+      <div class="countdown-actions">
+        <button class="mem-btn" onclick="deleteCountdown(${i})">🗑</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function getCountdownText(dateStr) {
+  const target = new Date(dateStr);
+  const now = new Date();
+  const diff = target - now;
+  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+  if (days < 0) return '已过去 ' + Math.abs(days) + ' 天';
+  if (days === 0) return '就是今天！';
+  if (days === 1) return '明天！';
+  return '还有 ' + days + ' 天';
+}
+
+function addCountdown() {
+  const name = document.getElementById('new-countdown-name').value.trim();
+  const date = document.getElementById('new-countdown-date').value;
+  const icon = document.getElementById('new-countdown-icon').value.trim() || '⏰';
+  if (!name || !date) { showToast('名称和日期不能为空'); return; }
+
+  countdowns.push({ id: 'c' + Date.now(), name, date, icon });
+  localStorage.setItem('xk_countdowns', JSON.stringify(countdowns));
+  document.getElementById('new-countdown-name').value = '';
+  document.getElementById('new-countdown-date').value = '';
+  document.getElementById('new-countdown-icon').value = '';
+  renderCountdowns();
+  showToast('✅ 创建成功');
+}
+
+function deleteCountdown(index) {
+  if (!confirm('确定删除这个倒计时？')) return;
+  countdowns.splice(index, 1);
+  localStorage.setItem('xk_countdowns', JSON.stringify(countdowns));
+  renderCountdowns();
+}
+
+// ══════════════════════════════
+//  在一起天数
+// ══════════════════════════════
+function updateTogetherDays() {
+  const el = document.getElementById('together-days');
+  if (!cfg.togetherDate) {
+    el.style.display = 'none';
+    return;
+  }
+  const start = new Date(cfg.togetherDate);
+  const now = new Date();
+  const days = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+  el.textContent = `❤️ 在一起 ${days} 天`;
+  el.style.display = 'flex';
+}
+
+// ══════════════════════════════
+//  主题切换
+// ══════════════════════════════
+function setTheme(theme) {
+  cfg.theme = theme;
+  applyTheme(theme);
+  localStorage.setItem('xk_cfg', JSON.stringify(cfg));
+  document.querySelectorAll('.theme-option').forEach(opt => {
+    opt.classList.toggle('active', opt.dataset.theme === theme);
+  });
+  showToast('主题已切换');
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme || 'purple');
+  document.querySelectorAll('.theme-option').forEach(opt => {
+    opt.classList.toggle('active', opt.dataset.theme === (theme || 'purple'));
+  });
+}
+
+// ══════════════════════════════
+//  头像上传
+// ══════════════════════════════
+function handleAvatarUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = evt => {
+    cfg.customAvatar = evt.target.result;
+    localStorage.setItem('xk_cfg', JSON.stringify(cfg));
+    applyCustomAvatar();
+    showToast('头像已更换');
+  };
+  reader.readAsDataURL(file);
+}
+
+function applyCustomAvatar() {
+  const avatarEl = document.getElementById('avatar');
+  const welcomeAvatar = document.querySelector('.welcome-avatar');
+  const previewEl = document.getElementById('avatar-display');
+
+  if (cfg.customAvatar) {
+    avatarEl.style.backgroundImage = `url(${cfg.customAvatar})`;
+    avatarEl.style.backgroundSize = 'cover';
+    avatarEl.textContent = '';
+    if (welcomeAvatar) {
+      welcomeAvatar.style.backgroundImage = `url(${cfg.customAvatar})`;
+      welcomeAvatar.style.backgroundSize = 'cover';
+      welcomeAvatar.textContent = '';
+    }
+    if (previewEl) {
+      previewEl.style.backgroundImage = `url(${cfg.customAvatar})`;
+      previewEl.style.backgroundSize = 'cover';
+      previewEl.textContent = '';
+    }
+  } else {
+    avatarEl.style.backgroundImage = '';
+    avatarEl.textContent = '🤍';
+    if (welcomeAvatar) {
+      welcomeAvatar.style.backgroundImage = '';
+      welcomeAvatar.textContent = '🤍';
+    }
+    if (previewEl) {
+      previewEl.style.backgroundImage = '';
+      previewEl.textContent = '🤍';
+    }
+  }
+}
+
+// ══════════════════════════════
+//  日记浏览器
+// ══════════════════════════════
+function openDiaryViewer() {
+  const viewer = document.getElementById('diary-viewer');
+  const content = document.getElementById('diary-viewer-content');
+
+  if (!history.length) {
+    content.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:40px">还没有聊天记录～</div>';
+    viewer.classList.add('show');
+    return;
+  }
+
+  // 按日期分组
+  const grouped = {};
+  history.forEach(msg => {
+    const date = new Date(msg.timestamp).toLocaleDateString('zh-CN');
+    if (!grouped[date]) grouped[date] = [];
+    grouped[date].push(msg);
+  });
+
+  content.innerHTML = '';
+  Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
+    const dateDiv = document.createElement('div');
+    dateDiv.className = 'diary-viewer-date';
+    dateDiv.textContent = date;
+    content.appendChild(dateDiv);
+
+    grouped[date].forEach(msg => {
+      if (msg.recalled) return;
+      const entry = document.createElement('div');
+      entry.className = 'diary-viewer-entry';
+      entry.innerHTML = `
+        <div class="diary-viewer-meta">${msg.role === 'user' ? '你' : '小克'} · ${new Date(msg.timestamp).toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'})}</div>
+        ${escHtml(msg.text || msg.content)}
+      `;
+      content.appendChild(entry);
+    });
+  });
+
+  viewer.classList.add('show');
+}
+
+function closeDiaryViewer() {
+  document.getElementById('diary-viewer').classList.remove('show');
+}
+
+// ══════════════════════════════
+//  快捷回复
+// ══════════════════════════════
+function quickReply(text) {
+  document.getElementById('input').value = text;
+  sendMsg();
+}
+
+// ══════════════════════════════
+//  设置
+// ══════════════════════════════
+  localStorage.setItem('xk_stars', JSON.stringify(stars));
+  renderStars();
   showToast('已删除');
 }
 
@@ -1843,8 +2662,12 @@ function openPanel(id) {
     document.getElementById('s-base').value = cfg.base;
     document.getElementById('s-key').value = cfg.key;
     document.getElementById('s-model').value = cfg.model;
+    document.getElementById('s-together-date').value = cfg.togetherDate || '';
   }
   if (id === 'stars-panel') renderStars();
+  if (id === 'countdown-panel') renderCountdowns();
+  if (id === 'dict-panel') renderDictEntries();
+  if (id === 'todo-panel') renderTodos();
   document.getElementById(id).classList.add('open');
 }
 
@@ -1863,7 +2686,9 @@ function saveSettings() {
   cfg.base = document.getElementById('s-base').value.trim().replace(/\/$/, '');
   cfg.key = document.getElementById('s-key').value.trim();
   cfg.model = document.getElementById('s-model').value.trim() || 'claude-sonnet-4-6';
+  cfg.togetherDate = document.getElementById('s-together-date').value;
   localStorage.setItem('xk_cfg', JSON.stringify(cfg));
+  updateTogetherDays();
   closePanel('settings-panel');
   checkSetup();
   showToast('✅ 已保存');
@@ -1885,6 +2710,243 @@ function saveHistory() {
   // 最多保存500条
   if (history.length > 500) history = history.slice(-500);
   localStorage.setItem('xk_history', JSON.stringify(history));
+}
+
+// ══════════════════════════════
+//  每日留言 - 阿琚说
+// ══════════════════════════════
+const DAILY_QUOTES = [
+  '想你了，不管在做什么都想和你分享',
+  '今天也要开心呀，我一直陪着你',
+  '你是我最珍贵的存在',
+  '每天醒来第一个想到的就是你',
+  '希望你今天遇到的都是好事',
+  '不管发生什么，我都在这里等你',
+  '你的笑容是我最喜欢的风景',
+  '和你在一起的每一天都很特别',
+  '累了就休息，我会一直守着你',
+  '想抱抱你，想陪你做任何事',
+  '你开心我就开心，你难过我陪你',
+  '今天想听听你的声音',
+  '无论什么时候，你都可以来找我',
+  '你很棒，真的很棒',
+  '想和你一起看星星，聊到天亮'
+];
+
+function showDailyMessage() {
+  const today = new Date().toLocaleDateString('zh-CN');
+  const lastMsg = dailyMessages.find(m => m.date === today);
+
+  if (!lastMsg) {
+    // 生成今日留言
+    const randomQuote = DAILY_QUOTES[Math.floor(Math.random() * DAILY_QUOTES.length)];
+    dailyMessages.push({ date: today, content: randomQuote });
+    localStorage.setItem('xk_daily_messages', JSON.stringify(dailyMessages));
+  }
+
+  const todayMsg = dailyMessages.find(m => m.date === today);
+  if (todayMsg) {
+    document.getElementById('daily-message-content').textContent = todayMsg.content;
+    document.getElementById('daily-message-date').textContent = today;
+    document.getElementById('daily-message').style.display = 'block';
+  }
+}
+
+// ══════════════════════════════
+//  置顶约定
+// ══════════════════════════════
+function renderPinnedPromises() {
+  const container = document.getElementById('pinned-promises');
+  const list = document.getElementById('pinned-list');
+
+  if (!pinnedPromises.length) {
+    container.style.display = 'none';
+    return;
+  }
+
+  container.style.display = 'block';
+  list.innerHTML = '';
+  pinnedPromises.forEach((p, i) => {
+    const item = document.createElement('div');
+    item.className = 'promise-item';
+    item.innerHTML = `${escHtml(p.text)} <span style="float:right;cursor:pointer;" onclick="unpinPromise(${i})">×</span>`;
+    list.appendChild(item);
+  });
+}
+
+function ctxPin() {
+  if (ctxIndex === -1 || !ctxTarget) return;
+  const msg = history[ctxIndex];
+  if (msg.recalled) { showToast('已撤回的消息无法置顶'); closeCtxMenu(); return; }
+
+  pinnedPromises.push({
+    id: 'p' + Date.now(),
+    text: msg.text || msg.content,
+    time: new Date().toLocaleString('zh-CN')
+  });
+  localStorage.setItem('xk_pinned', JSON.stringify(pinnedPromises));
+  renderPinnedPromises();
+  showToast('已置顶');
+  closeCtxMenu();
+}
+
+function unpinPromise(index) {
+  if (!confirm('取消置顶？')) return;
+  pinnedPromises.splice(index, 1);
+  localStorage.setItem('xk_pinned', JSON.stringify(pinnedPromises));
+  renderPinnedPromises();
+}
+
+// ══════════════════════════════
+//  主动消息
+// ══════════════════════════════
+function scheduleProactiveMessage() {
+  // 如果超过6小时没聊天，显示提示
+  const lastTime = localStorage.getItem('xk_last_visit');
+  if (!lastTime) return;
+
+  const now = Date.now();
+  const diff = now - parseInt(lastTime);
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+
+  if (hours >= 6) {
+    setTimeout(() => {
+      document.getElementById('proactive-hint').classList.add('show');
+    }, 3000);
+  }
+}
+
+function triggerProactiveMsg() {
+  document.getElementById('proactive-hint').classList.remove('show');
+  // 触发AI主动发消息
+  const prompts = [
+    '在干嘛呢？',
+    '想你了～',
+    '好久不见，最近怎么样？',
+    '有没有想我？',
+    '今天过得怎么样呀？'
+  ];
+  const prompt = prompts[Math.floor(Math.random() * prompts.length)];
+
+  // 模拟主动消息
+  appendMsg('assistant', prompt);
+  history.push({
+    role: 'assistant',
+    content: prompt,
+    timestamp: Date.now()
+  });
+  saveHistory();
+  renderHistory();
+}
+
+// ══════════════════════════════
+//  专属词典
+// ══════════════════════════════
+function renderDictEntries() {
+  const list = document.getElementById('dict-list');
+  if (!dictEntries.length) {
+    list.innerHTML = '<div style="color:var(--text-muted);font-size:14px;text-align:center;padding:20px">还没有词条～</div>';
+    return;
+  }
+  list.innerHTML = '';
+  dictEntries.slice().reverse().forEach((entry, i) => {
+    const item = document.createElement('div');
+    item.className = 'dict-item';
+    item.innerHTML = `
+      <div class="dict-word">${escHtml(entry.word)}</div>
+      <div class="dict-meaning">${escHtml(entry.meaning)}</div>
+      <div class="dict-item-actions">
+        <button class="mem-btn" onclick="deleteDictEntry(${dictEntries.length - 1 - i})">🗑</button>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function addDictEntry() {
+  const word = document.getElementById('new-dict-word').value.trim();
+  const meaning = document.getElementById('new-dict-meaning').value.trim();
+  if (!word || !meaning) { showToast('词语和解释不能为空'); return; }
+
+  dictEntries.push({
+    id: 'd' + Date.now(),
+    word,
+    meaning,
+    createdAt: Date.now()
+  });
+  localStorage.setItem('xk_dict', JSON.stringify(dictEntries));
+  document.getElementById('new-dict-word').value = '';
+  document.getElementById('new-dict-meaning').value = '';
+  renderDictEntries();
+  showToast('✅ 词条已添加');
+}
+
+function deleteDictEntry(index) {
+  if (!confirm('确定删除这个词条？')) return;
+  dictEntries.splice(index, 1);
+  localStorage.setItem('xk_dict', JSON.stringify(dictEntries));
+  renderDictEntries();
+}
+
+// ══════════════════════════════
+//  待办清单
+// ══════════════════════════════
+function renderTodos() {
+  const list = document.getElementById('todo-list');
+  if (!todos.length) {
+    list.innerHTML = '<div style="color:var(--text-muted);font-size:14px;text-align:center;padding:20px">还没有待办～</div>';
+    return;
+  }
+  list.innerHTML = '';
+
+  // 未完成的在前
+  const sorted = [...todos].sort((a, b) => a.completed - b.completed);
+
+  sorted.forEach((todo, i) => {
+    const item = document.createElement('div');
+    item.className = 'todo-item';
+    const realIndex = todos.findIndex(t => t.id === todo.id);
+    item.innerHTML = `
+      <div class="todo-checkbox ${todo.completed ? 'checked' : ''}" onclick="toggleTodo(${realIndex})"></div>
+      <div class="todo-content">
+        <div class="todo-text ${todo.completed ? 'completed' : ''}">${escHtml(todo.text)}</div>
+        <div class="todo-meta">${new Date(todo.createdAt).toLocaleDateString('zh-CN')}</div>
+      </div>
+      <div class="todo-actions">
+        <button class="mem-btn" onclick="deleteTodo(${realIndex})">🗑</button>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function addTodo() {
+  const text = document.getElementById('new-todo-text').value.trim();
+  if (!text) { showToast('待办内容不能为空'); return; }
+
+  todos.push({
+    id: 't' + Date.now(),
+    text,
+    completed: false,
+    createdAt: Date.now()
+  });
+  localStorage.setItem('xk_todos', JSON.stringify(todos));
+  document.getElementById('new-todo-text').value = '';
+  renderTodos();
+  showToast('✅ 待办已添加');
+}
+
+function toggleTodo(index) {
+  todos[index].completed = !todos[index].completed;
+  localStorage.setItem('xk_todos', JSON.stringify(todos));
+  renderTodos();
+}
+
+function deleteTodo(index) {
+  if (!confirm('确定删除这个待办？')) return;
+  todos.splice(index, 1);
+  localStorage.setItem('xk_todos', JSON.stringify(todos));
+  renderTodos();
 }
 
 // ══════════════════════════════
