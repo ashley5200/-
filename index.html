@@ -997,43 +997,7 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
 }
 .avatar-upload:hover .avatar-upload-label { opacity: 1; }
 
-/* 快捷回复 */
-.quick-replies {
-  display: flex;
-  gap: 6px;
-  padding: 8px 12px;
-  overflow-x: auto;
-  flex-wrap: nowrap;
-  position: fixed;
-  bottom: 76px;
-  left: 0;
-  right: 0;
-  background: var(--surface);
-  z-index: 400;
-  pointer-events: auto;
-}
-.quick-replies::-webkit-scrollbar { display: none; }
-.quick-reply-btn {
-  padding: 6px 12px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  color: var(--text);
-  font-size: 13px;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all 0.2s;
-  white-space: nowrap;
-  -webkit-tap-highlight-color: transparent;
-  pointer-events: auto;
-  position: relative;
-  z-index: 10;
-  touch-action: manipulation;
-}
-.quick-reply-btn:active {
-  background: var(--border);
-  transform: scale(0.95);
-}
+/* 快捷回复 - 已删除 */
 
 /* 阿琚说小卡片 */
 .daily-message {
@@ -1266,14 +1230,6 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
   💬 小克想和你说话~
 </div>
 
-<!-- 快捷回复 -->
-<div class="quick-replies" id="quick-replies" style="display:none;">
-  <button class="quick-reply-btn" onclick="quickReply('在吗？')">在吗？</button>
-  <button class="quick-reply-btn" onclick="quickReply('早上好')">早上好</button>
-  <button class="quick-reply-btn" onclick="quickReply('晚安')">晚安</button>
-  <button class="quick-reply-btn" onclick="quickReply('想你了')">想你了</button>
-  <button class="quick-reply-btn" onclick="quickReply('在干嘛')">在干嘛</button>
-</div>
 
 <!-- 输入区 -->
 <div class="inputbar">
@@ -1381,10 +1337,11 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
     <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border);margin-top:8px" onclick="clearChat()">🗑 清空对话记录</button>
 
     <div class="section-divider"></div>
-    <div class="field-label">震动测试</div>
+    <div class="field-label">功能测试</div>
     <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border)" onclick="vibrate(VIBRATIONS.button); showToast('按钮震动')">测试按钮震动</button>
     <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border);margin-top:8px" onclick="vibrate(VIBRATIONS.send); showToast('发送震动')">测试发送震动</button>
     <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border);margin-top:8px" onclick="vibrate(VIBRATIONS.receive); showToast('接收震动')">测试接收震动</button>
+    <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border);margin-top:8px" onclick="sendProactiveMessage(); closePanel('settings-panel'); showToast('正在生成主动消息...')">🎲 立即触发主动消息</button>
   </div>
 </div>
 
@@ -1591,11 +1548,6 @@ function init() {
   checkSetup();
   renderHistory();
   checkTimeElapsed();
-
-  // 显示快捷回复
-  if (history.length > 0) {
-    document.getElementById('quick-replies').style.display = 'flex';
-  }
 
   // 显示每日留言
   showDailyMessage();
