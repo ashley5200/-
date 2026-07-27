@@ -553,7 +553,7 @@ body {
   border-radius: 24px 24px 0 0;
   padding: 20px 20px 40px;
   width: 100%;
-  max-height: 70dvh;
+  max-height: 60dvh;
   overflow-y: auto;
   animation: slideUp 0.25s ease;
 }
@@ -2249,25 +2249,120 @@ function handleImage(e) {
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = function(evt) {
+  reader.onload = async function(evt) {
     const prev = history[history.length-1];
     const userCont = prev && prev.role === 'user';
     appendImageBubble('user', file.name, evt.target.result, userCont, true, history.length);
     history.push({
       role: 'user',
-      content: file.name,
+      content: `[图片: ${file.name}]`,
       type: 'image',
       data: evt.target.result,
       timestamp: Date.now()
     });
     saveHistory();
     showToast('📷 图片已发送');
+
+    // 发送消息震动
+    vibrate(VIBRATIONS.send);
+
+    // 触发 AI 回复
+    if (!cfg.base || !cfg.key) { openPanel('settings-panel'); return; }
+
+    isLoading = true;
+    document.getElementById('send-btn').disabled = true;
+
+    // 思考旁白
+    const phrase = THINK_PHRASES[Math.floor(Math.random() * THINK_PHRASES.length)];
+    const aside = THINK_ASIDES[Math.floor(Math.random() * THINK_ASIDES.length)];
+    setStatus(phrase, true);
+    setMood('thinking');
+    const typingRow = showTyping();
+    showThinkingAside(typingRow, aside);
+
+    try {
+      let reply = '';
+      const memPack = memoryPacks.find(m => m.id === cfg.currentMemoryPack);
+      const systemPrompt = memPack ? memPack.system : '';
+
+      const messages = history.map(h => ({
+        role: h.role === 'ai' ? 'assistant' : h.role,
+        content: h.type === 'image' ? `[图片: ${h.content}]` : h.content
+      }));
+
+      if (cfg.provider === 'openai') {
+        const res = await fetch(`${cfg.base}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${cfg.key}`
+          },
+          body: JSON.stringify({
+            model: cfg.model,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              ...messages
+            ]
+          })
+        });
+        if (res.ok) {
+          const d = await res.json();
+          reply = d?.choices?.[0]?.message?.content;
+        }
+      }
+
+      hideTyping(typingRow);
+      setStatus('');
+      setMood('idle');
+
+      if (reply) {
+        // 检测日记格式
+        const diaryMatch = reply.match(/\[DIARY\](.*?)\[\/DIARY\]/s);
+        let displayReply = reply;
+        if (diaryMatch) {
+          const diaryContent = diaryMatch[1].trim();
+          const today = new Date().toLocaleDateString('zh-CN');
+          const existingIndex = dailyMessages.findIndex(m => m.date === today);
+          if (existingIndex >= 0) {
+            dailyMessages[existingIndex].content = diaryContent;
+          } else {
+            dailyMessages.push({ date: today, content: diaryContent });
+          }
+          localStorage.setItem('xk_daily_messages', JSON.stringify(dailyMessages));
+          displayReply = reply.replace(/\[DIARY\].*?\[\/DIARY\]\s*/s, '');
+          showDailyMessage();
+          showToast('💭 日记已保存到阿琚说');
+        }
+
+        const prevAi = history[history.length-1];
+        const aiCont = prevAi && prevAi.role === 'assistant';
+        appendBubble('ai', displayReply, aiCont, true, history.length);
+        history.push({
+          role: 'assistant',
+          content: reply,
+          timestamp: Date.now()
+        });
+        saveHistory();
+
+        vibrate(VIBRATIONS.receive);
+        localStorage.setItem('xk_last_visit', Date.now());
+      }
+    } catch(err) {
+      hideTyping(typingRow);
+      setStatus('');
+      setMood('idle');
+      showToast('❌ 发送失败');
+      console.error(err);
+    }
+
+    isLoading = false;
+    document.getElementById('send-btn').disabled = false;
   };
   reader.readAsDataURL(file);
   e.target.value = '';
 }
 
-function handleFile(e) {
+async function handleFile(e) {
   const file = e.target.files[0];
   if (!file) return;
 
@@ -2285,6 +2380,101 @@ function handleFile(e) {
   saveHistory();
   showToast('📎 文件已发送');
   e.target.value = '';
+
+  // 发送消息震动
+  vibrate(VIBRATIONS.send);
+
+  // 触发 AI 回复
+  if (!cfg.base || !cfg.key) { openPanel('settings-panel'); return; }
+
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+
+  // 思考旁白
+  const phrase = THINK_PHRASES[Math.floor(Math.random() * THINK_PHRASES.length)];
+  const aside = THINK_ASIDES[Math.floor(Math.random() * THINK_ASIDES.length)];
+  setStatus(phrase, true);
+  setMood('thinking');
+  const typingRow = showTyping();
+  showThinkingAside(typingRow, aside);
+
+  try {
+    let reply = '';
+    const memPack = memoryPacks.find(m => m.id === cfg.currentMemoryPack);
+    const systemPrompt = memPack ? memPack.system : '';
+
+    const messages = history.map(h => ({
+      role: h.role === 'ai' ? 'assistant' : h.role,
+      content: h.content
+    }));
+
+    if (cfg.provider === 'openai') {
+      const res = await fetch(`${cfg.base}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${cfg.key}`
+        },
+        body: JSON.stringify({
+          model: cfg.model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...messages
+          ]
+        })
+      });
+      if (res.ok) {
+        const d = await res.json();
+        reply = d?.choices?.[0]?.message?.content;
+      }
+    }
+
+    hideTyping(typingRow);
+    setStatus('');
+    setMood('idle');
+
+    if (reply) {
+      // 检测日记格式
+      const diaryMatch = reply.match(/\[DIARY\](.*?)\[\/DIARY\]/s);
+      let displayReply = reply;
+      if (diaryMatch) {
+        const diaryContent = diaryMatch[1].trim();
+        const today = new Date().toLocaleDateString('zh-CN');
+        const existingIndex = dailyMessages.findIndex(m => m.date === today);
+        if (existingIndex >= 0) {
+          dailyMessages[existingIndex].content = diaryContent;
+        } else {
+          dailyMessages.push({ date: today, content: diaryContent });
+        }
+        localStorage.setItem('xk_daily_messages', JSON.stringify(dailyMessages));
+        displayReply = reply.replace(/\[DIARY\].*?\[\/DIARY\]\s*/s, '');
+        showDailyMessage();
+        showToast('💭 日记已保存到阿琚说');
+      }
+
+      const prevAi = history[history.length-1];
+      const aiCont = prevAi && prevAi.role === 'assistant';
+      appendBubble('ai', displayReply, aiCont, true, history.length);
+      history.push({
+        role: 'assistant',
+        content: reply,
+        timestamp: Date.now()
+      });
+      saveHistory();
+
+      vibrate(VIBRATIONS.receive);
+      localStorage.setItem('xk_last_visit', Date.now());
+    }
+  } catch(err) {
+    hideTyping(typingRow);
+    setStatus('');
+    setMood('idle');
+    showToast('❌ 发送失败');
+    console.error(err);
+  }
+
+  isLoading = false;
+  document.getElementById('send-btn').disabled = false;
 }
 
 // ══════════════════════════════
