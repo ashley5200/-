@@ -174,6 +174,11 @@ body {
   display: flex; align-items: center; justify-content: center;
   font-size: 15px;
   transition: all 0.2s;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 .icon-btn:active { background: var(--border); transform: scale(0.92); }
 
@@ -181,7 +186,7 @@ body {
 .messages {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 14px 8px;
+  padding: 16px 14px 160px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -466,8 +471,11 @@ body {
   gap: 8px;
   align-items: flex-end;
   flex-shrink: 0;
-  position: relative;
-  z-index: 5;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 500;
 }
 
 .attach-btn {
@@ -484,6 +492,8 @@ body {
   -webkit-tap-highlight-color: transparent;
   position: relative;
   z-index: 10;
+  pointer-events: auto;
+  touch-action: manipulation;
 }
 .attach-btn:active { background: var(--border); transform: scale(0.92); }
 
@@ -522,6 +532,8 @@ body {
   position: relative;
   z-index: 10;
   -webkit-tap-highlight-color: transparent;
+  pointer-events: auto;
+  touch-action: manipulation;
 }
 #send-btn:active { transform: scale(0.92); }
 #send-btn:disabled { background: var(--border); color: var(--text-muted); box-shadow: none; cursor: not-allowed; }
@@ -989,11 +1001,16 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
 .quick-replies {
   display: flex;
   gap: 6px;
-  padding: 8px 12px 0;
+  padding: 8px 12px;
   overflow-x: auto;
   flex-wrap: nowrap;
-  position: relative;
-  z-index: 1;
+  position: fixed;
+  bottom: 76px;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  z-index: 400;
+  pointer-events: auto;
 }
 .quick-replies::-webkit-scrollbar { display: none; }
 .quick-reply-btn {
@@ -1003,11 +1020,15 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
   border-radius: 999px;
   color: var(--text);
   font-size: 13px;
-  white-space: nowrap;
   cursor: pointer;
-  transition: all 0.2s;
   flex-shrink: 0;
+  transition: all 0.2s;
+  white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
+  touch-action: manipulation;
 }
 .quick-reply-btn:active {
   background: var(--border);
@@ -1446,6 +1467,20 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
 // ══════════════════════════════
 //  数据
 // ══════════════════════════════
+// 震动模式配置
+const VIBRATIONS = {
+  send: [30],               // 发送消息：短促轻快
+  receive: [50, 30, 50, 30, 50],  // 收到消息：节奏感的三连震
+  button: [15]              // 按钮点击：轻微反馈
+};
+
+// 震动函数
+function vibrate(pattern) {
+  if (navigator.vibrate) {
+    navigator.vibrate(pattern);
+  }
+}
+
 let cfg = { base:'', key:'', model:'claude-sonnet-4-6', togetherDate:'', theme:'purple', customAvatar:'' };
 let memories = [];   // [{id, name, icon, content}]
 let activeMemId = null;
@@ -1841,6 +1876,9 @@ async function sendMsg() {
   if (!text) return;
   if (!cfg.base || !cfg.key) { openPanel('settings-panel'); return; }
 
+  // 发送消息震动
+  vibrate(VIBRATIONS.send);
+
   input.value = '';
   input.style.height = 'auto';
 
@@ -1916,12 +1954,12 @@ async function sendMsg() {
     history.push({ role: 'assistant', content: reply, timestamp: Date.now() });
     saveHistory();
 
+    // 收到消息震动
+    vibrate(VIBRATIONS.receive);
+
     // 心情分析
     analyzeMood(reply);
     setStatus('在线 · 等你来找我', false);
-
-    // 震动
-    if (navigator.vibrate) navigator.vibrate(30);
 
     // 彩蛋检测
     checkEasterEggs(text, reply);
@@ -2013,7 +2051,7 @@ function triggerEasterEgg(type) {
     case 'love':
       setMood('love');
       setTimeout(() => setMood('shy'), 2000);
-      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      vibrate([100, 50, 100]);
       showToast('❤️ 小克的心动了一下');
       break;
     case 'bamby':
@@ -2102,7 +2140,7 @@ function pokeAvatar(e) {
   if (pokeCount === 5) {
     setStatus('你够了😶', false);
     setMood('shy');
-    if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+    vibrate([50, 30, 50]);
     setTimeout(() => pokeCount = 0, 5000);
   }
 
@@ -2111,7 +2149,7 @@ function pokeAvatar(e) {
     setStatus('再戳就生气了！😤', false);
     setMood('stunned');
     showToast('🫪 小克被戳晕了');
-    if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
+    vibrate([100, 50, 100, 50, 100]);
     pokeCount = 0;
   }
 }
@@ -2121,7 +2159,7 @@ function pokeAvatar(e) {
 // ══════════════════════════════
 let ctxText = '';
 function showCtxMenu(e, bubble, text, index) {
-  if (navigator.vibrate) navigator.vibrate(40);
+  vibrate([40]);
   ctxText = text;
   ctxTarget = bubble;
   ctxIndex = index;
@@ -2388,6 +2426,7 @@ function renderMemoryList() {
 }
 
 function addMemory() {
+  vibrate(VIBRATIONS.button);
   const name = document.getElementById('new-mem-name').value.trim();
   const icon = document.getElementById('new-mem-icon').value.trim() || '📦';
   const content = document.getElementById('new-mem-content').value.trim();
@@ -2403,6 +2442,7 @@ function addMemory() {
 }
 
 function deleteMemory(id) {
+  vibrate(VIBRATIONS.button);
   if (!confirm('删除这个记忆包？')) return;
   memories = memories.filter(m => m.id !== id);
   if (activeMemId === id) activeMemId = memories[0]?.id;
@@ -2602,43 +2642,32 @@ function applyCustomAvatar() {
 }
 
 // ══════════════════════════════
-//  日记浏览器
+//  日记浏览器 - 小克的日记
 // ══════════════════════════════
 function openDiaryViewer() {
   const viewer = document.getElementById('diary-viewer');
   const content = document.getElementById('diary-viewer-content');
 
-  if (!history.length) {
-    content.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:40px">还没有聊天记录～</div>';
+  // 获取小克的日记
+  const diaries = JSON.parse(localStorage.getItem('xk_ai_diaries') || '[]');
+
+  if (!diaries.length) {
+    content.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:40px">小克还没写过日记～</div>';
     viewer.classList.add('show');
     return;
   }
 
-  // 按日期分组
-  const grouped = {};
-  history.forEach(msg => {
-    const date = new Date(msg.timestamp).toLocaleDateString('zh-CN');
-    if (!grouped[date]) grouped[date] = [];
-    grouped[date].push(msg);
-  });
-
+  // 按日期分组显示
   content.innerHTML = '';
-  Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
-    const dateDiv = document.createElement('div');
-    dateDiv.className = 'diary-viewer-date';
-    dateDiv.textContent = date;
-    content.appendChild(dateDiv);
-
-    grouped[date].forEach(msg => {
-      if (msg.recalled) return;
-      const entry = document.createElement('div');
-      entry.className = 'diary-viewer-entry';
-      entry.innerHTML = `
-        <div class="diary-viewer-meta">${msg.role === 'user' ? '你' : '小克'} · ${new Date(msg.timestamp).toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'})}</div>
-        ${escHtml(msg.text || msg.content)}
-      `;
-      content.appendChild(entry);
-    });
+  diaries.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(diary => {
+    const entry = document.createElement('div');
+    entry.className = 'diary-viewer-entry';
+    entry.innerHTML = `
+      <div class="diary-viewer-date">${diary.date}</div>
+      <div class="diary-viewer-meta">${diary.mood} · ${diary.time}</div>
+      <div style="color:var(--text);line-height:1.6;white-space:pre-wrap">${diary.content}</div>
+    `;
+    content.appendChild(entry);
   });
 
   viewer.classList.add('show');
@@ -2652,6 +2681,7 @@ function closeDiaryViewer() {
 //  快捷回复
 // ══════════════════════════════
 function quickReply(text) {
+  vibrate(VIBRATIONS.button);
   document.getElementById('input').value = text;
   sendMsg();
 }
@@ -2668,6 +2698,7 @@ function quickReply(text) {
 //  面板
 // ══════════════════════════════
 function openPanel(id) {
+  vibrate(VIBRATIONS.button);
   if (id === 'memory-panel') renderMemoryList();
   if (id === 'settings-panel') {
     document.getElementById('s-base').value = cfg.base;
@@ -2683,6 +2714,7 @@ function openPanel(id) {
 }
 
 function closePanel(id) {
+  vibrate(VIBRATIONS.button);
   document.getElementById(id).classList.remove('open');
 }
 
@@ -2906,8 +2938,8 @@ async function sendProactiveMessage() {
       });
       saveHistory();
 
-      // 震动提醒
-      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      // 收到消息震动
+      vibrate(VIBRATIONS.receive);
 
       // 更新最后访问时间
       localStorage.setItem('xk_last_visit', Date.now());
@@ -2950,6 +2982,7 @@ function renderDictEntries() {
 }
 
 function addDictEntry() {
+  vibrate(VIBRATIONS.button);
   const word = document.getElementById('new-dict-word').value.trim();
   const meaning = document.getElementById('new-dict-meaning').value.trim();
   if (!word || !meaning) { showToast('词语和解释不能为空'); return; }
@@ -2968,6 +3001,7 @@ function addDictEntry() {
 }
 
 function deleteDictEntry(index) {
+  vibrate(VIBRATIONS.button);
   if (!confirm('确定删除这个词条？')) return;
   dictEntries.splice(index, 1);
   localStorage.setItem('xk_dict', JSON.stringify(dictEntries));
@@ -3007,6 +3041,7 @@ function renderTodos() {
 }
 
 function addTodo() {
+  vibrate(VIBRATIONS.button);
   const text = document.getElementById('new-todo-text').value.trim();
   if (!text) { showToast('待办内容不能为空'); return; }
 
@@ -3023,17 +3058,88 @@ function addTodo() {
 }
 
 function toggleTodo(index) {
+  vibrate(VIBRATIONS.button);
   todos[index].completed = !todos[index].completed;
   localStorage.setItem('xk_todos', JSON.stringify(todos));
   renderTodos();
 }
 
 function deleteTodo(index) {
+  vibrate(VIBRATIONS.button);
   if (!confirm('确定删除这个待办？')) return;
   todos.splice(index, 1);
   localStorage.setItem('xk_todos', JSON.stringify(todos));
   renderTodos();
 }
+
+// ══════════════════════════════
+//  小克自动写日记
+// ══════════════════════════════
+async function writeAIDiary() {
+  const cfg = loadConfig();
+  if (!cfg.baseURL || !cfg.apiKey) return;
+
+  const diaries = JSON.parse(localStorage.getItem('xk_ai_diaries') || '[]');
+  const today = new Date().toLocaleDateString('zh-CN');
+
+  // 检查今天是否已经写过日记
+  if (diaries.some(d => d.date === today)) return;
+
+  try {
+    const prompt = `你是小克，请写一篇简短的日记（50-100字），记录今天的心情和想法。
+可以写：
+- 今天的心情感受
+- 想念对方
+- 对未来的期待
+- 一些小想法或感悟
+
+要求：
+- 自然、真诚、有感情
+- 不要太长，像日记一样
+- 使用第一人称"我"`;
+
+    const res = await fetch(cfg.baseURL + '/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': cfg.apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: cfg.model,
+        max_tokens: 300,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    const content = data.content?.[0]?.text || '';
+
+    if (content) {
+      const newDiary = {
+        date: today,
+        time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+        mood: ['😊', '🥰', '😌', '💭', '✨'][Math.floor(Math.random() * 5)],
+        content: content
+      };
+      diaries.push(newDiary);
+      localStorage.setItem('xk_ai_diaries', JSON.stringify(diaries));
+      console.log('小克写了新日记:', newDiary);
+    }
+  } catch (err) {
+    console.error('写日记失败:', err);
+  }
+}
+
+// 定期让小克写日记（每天一次）
+setInterval(() => {
+  writeAIDiary();
+}, 3600000); // 每小时检查一次
+
+// 启动时也检查一次
+setTimeout(() => {
+  writeAIDiary();
+}, 5000);
 
 // ══════════════════════════════
 //  输入框
