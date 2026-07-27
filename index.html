@@ -8,14 +8,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500&display=swap');
 
 :root {
-  --bg: #0d0b14;
-  --surface: #13111d;
-  --surface2: #1a1726;
+  --bg: #05070c;
+  --surface: #0f131c;
+  --surface2: #161d2b;
+  --surface3: #1e2636;
   --border: #2d2840;
   --purple: #b393f5;
   --pink: #f093c0;
   --purple2: #7c5cbf;
   --pink2: #c4587e;
+  --accent: #38bdf8;
   --grad: linear-gradient(135deg, #b393f5, #f093c0);
   --grad2: linear-gradient(135deg, #7c5cbf, #c4587e);
   --glow: rgba(179,147,245,0.2);
@@ -169,12 +171,33 @@ body {
 }
 .welcome-sub { font-size: 14px; color: var(--text-muted); }
 
+/* 日记分隔 */
+.date-divider {
+  text-align: center;
+  padding: 16px 0 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  position: relative;
+}
+.date-divider::before,
+.date-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 30%;
+  height: 1px;
+  background: var(--border);
+}
+.date-divider::before { left: 10%; }
+.date-divider::after { right: 10%; }
+
 /* 消息行 */
 .msg-row {
   display: flex;
   align-items: flex-end;
   gap: 8px;
   animation: fadeUp 0.22s ease;
+  position: relative;
 }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
@@ -184,6 +207,12 @@ body {
 .msg-row + .msg-row { margin-top: 2px; }
 .msg-row.user + .msg-row.ai,
 .msg-row.ai + .msg-row.user { margin-top: 10px; }
+.msg-row.deleted { opacity: 0.4; }
+.msg-row.deleted .bubble {
+  background: var(--surface) !important;
+  color: var(--text-muted) !important;
+  font-style: italic;
+}
 
 .msg-av {
   width: 30px; height: 30px;
@@ -221,6 +250,54 @@ body {
   background: var(--grad2);
   border-bottom-right-radius: 5px;
   color: #fff;
+}
+
+/* 图片消息 */
+.bubble-image {
+  max-width: 240px;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.bubble-image img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* 文件消息 */
+.bubble-file {
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 200px;
+}
+.file-icon {
+  width: 40px; height: 40px;
+  background: var(--grad);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.file-info { flex: 1; min-width: 0; }
+.file-name {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.file-size {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 
 .msg-time {
@@ -304,6 +381,23 @@ body {
   40% { transform: translateY(-7px); opacity: 1; }
 }
 
+/* 打字时思考旁白 */
+.thinking-aside {
+  position: absolute;
+  right: 10px;
+  top: -20px;
+  font-size: 11px;
+  color: var(--purple);
+  font-style: italic;
+  opacity: 0;
+  animation: thinkFade 3s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes thinkFade {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.7; }
+}
+
 /* 戳一戳反应 */
 .poke-reaction {
   position: fixed;
@@ -327,6 +421,20 @@ body {
   align-items: flex-end;
   flex-shrink: 0;
 }
+
+.attach-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface2);
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.attach-btn:active { background: var(--border); transform: scale(0.92); }
 
 #input {
   flex: 1;
@@ -501,6 +609,27 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
   position: relative;
 }
 .star-item-role { font-size: 11px; color: var(--purple); margin-bottom: 4px; }
+.star-item-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+}
+.star-del-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--surface3);
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.star-del-btn:active { background: #f87171; color: #fff; }
 
 /* 错误 */
 .err-bubble {
@@ -552,6 +681,63 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
 }
 .ctx-item:active { background: var(--border); }
 .ctx-item.danger { color: #f87171; }
+
+/* 图片预览 */
+.image-preview {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.image-preview.show { display: flex; }
+.image-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* 日记模式标记 */
+.diary-indicator {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(179,147,245,0.9);
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  z-index: 50;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  animation: slideDown 0.3s ease;
+}
+.diary-indicator.show { display: flex; }
+@keyframes slideDown {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* 时间流逝提示 */
+.time-elapsed {
+  text-align: center;
+  font-size: 11px;
+  color: var(--accent);
+  padding: 12px 0;
+  animation: fadeUp 0.3s ease;
+}
+
+/* 隐藏的文件输入 */
+#file-input,
+#image-input {
+  display: none;
+}
 </style>
 </head>
 <body>
@@ -569,8 +755,14 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
   <div class="topbar-actions">
     <button class="icon-btn" onclick="openPanel('stars-panel')" title="收藏">⭐</button>
     <button class="icon-btn" onclick="openPanel('memory-panel')" title="记忆包">📦</button>
+    <button class="icon-btn" onclick="toggleDiaryMode()" title="日记模式" id="diary-btn">📔</button>
     <button class="icon-btn" onclick="openPanel('settings-panel')" title="设置">⚙️</button>
   </div>
+</div>
+
+<!-- 日记模式提示 -->
+<div class="diary-indicator" id="diary-indicator">
+  📔 日记模式已开启
 </div>
 
 <!-- 未配置 -->
@@ -590,9 +782,14 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
 
 <!-- 输入区 -->
 <div class="inputbar">
+  <button class="attach-btn" onclick="showAttachMenu()">📎</button>
   <textarea id="input" placeholder="说点什么…" rows="1"></textarea>
   <button id="send-btn" onclick="sendMsg()">➤</button>
 </div>
+
+<!-- 隐藏的文件输入 -->
+<input type="file" id="file-input" accept="*/*" onchange="handleFile(event)">
+<input type="file" id="image-input" accept="image/*" onchange="handleImage(event)">
 
 <!-- 复制提示 -->
 <div class="copy-toast" id="copy-toast">已复制</div>
@@ -601,6 +798,13 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
 <div class="ctx-menu" id="ctx-menu">
   <div class="ctx-item" onclick="ctxCopy()">📋 复制</div>
   <div class="ctx-item" onclick="ctxStar()">⭐ 收藏</div>
+  <div class="ctx-item danger" onclick="ctxRecall()">↩️ 撤回</div>
+  <div class="ctx-item danger" onclick="ctxDelete()">🗑 删除</div>
+</div>
+
+<!-- 图片预览 -->
+<div class="image-preview" id="image-preview" onclick="closeImagePreview()">
+  <img id="preview-img" src="">
 </div>
 
 <!-- 设置面板 -->
@@ -619,6 +823,7 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
     <button class="btn-primary" onclick="saveSettings()">保存</button>
     <div class="section-divider"></div>
     <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border)" onclick="clearChat()">🗑 清空对话记录</button>
+    <button class="btn-primary" style="background:var(--surface2);color:var(--text-muted);box-shadow:none;border:1px solid var(--border);margin-top:8px" onclick="exportDiary()">📥 导出日记</button>
   </div>
 </div>
 
@@ -633,6 +838,8 @@ textarea.field-input { min-height: 110px; resize: vertical; line-height: 1.6; }
     <div class="section-divider"></div>
     <div class="field-label">新建记忆包</div>
     <input class="field-input" id="new-mem-name" placeholder="名称（如：日常聊天）">
+    <div class="field-label" style="margin-top:10px">图标</div>
+    <input class="field-input" id="new-mem-icon" placeholder="emoji（如：🤍）" maxlength="2">
     <div class="field-label" style="margin-top:10px">系统提示词</div>
     <textarea class="field-input" id="new-mem-content" placeholder="写小克的人设、记忆、规则…"></textarea>
     <button class="btn-primary" onclick="addMemory()">＋ 创建</button>
@@ -661,6 +868,8 @@ let history = [];
 let stars = [];
 let isLoading = false;
 let ctxTarget = null;
+let ctxIndex = -1;
+let isDiaryMode = false;
 
 const MOODS = {
   neutral: '😊',
@@ -669,12 +878,21 @@ const MOODS = {
   stunned: '🫪',
   melting: '🫠',
   thinking: '🤔',
+  love: '❤️',
+  excited: '✨'
 };
 let currentMood = 'neutral';
 
 const THINK_PHRASES = [
   '让我想想…', '嗯？', '稍等一下…', '好好好…',
-  '我在听…', '嗯嗯…', '思考中…', '哦？'
+  '我在听…', '嗯嗯…', '思考中…', '哦？',
+  '有点意思…', '这样啊…', '懂了懂了…'
+];
+
+const THINK_ASIDES = [
+  '嗯...怎么说呢', '要认真回答才行', '她会喜欢这个回答吗',
+  '这个问题有点难', '让我组织一下语言', '希望她开心',
+  '要说得自然一点', '别太正式了', '放松点回答'
 ];
 
 // ══════════════════════════════
@@ -711,13 +929,49 @@ function init() {
   try { history = JSON.parse(localStorage.getItem('xk_history') || '[]'); } catch(e) {}
   // 加载收藏
   try { stars = JSON.parse(localStorage.getItem('xk_stars') || '[]'); } catch(e) {}
+  // 加载日记模式
+  try { isDiaryMode = localStorage.getItem('xk_diary_mode') === 'true'; } catch(e) {}
+  updateDiaryMode();
 
   checkSetup();
   renderHistory();
+  checkTimeElapsed();
 }
 
 function checkSetup() {
   document.getElementById('setup-tip').classList.toggle('show', !cfg.base || !cfg.key);
+}
+
+// ══════════════════════════════
+//  时间流逝检查
+// ══════════════════════════════
+function checkTimeElapsed() {
+  const lastTime = localStorage.getItem('xk_last_visit');
+  if (!lastTime || !history.length) {
+    localStorage.setItem('xk_last_visit', Date.now());
+    return;
+  }
+
+  const now = Date.now();
+  const diff = now - parseInt(lastTime);
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) {
+    showTimeElapsed(`距离上次聊天已经过去 ${days} 天了`);
+  } else if (hours > 3) {
+    showTimeElapsed(`距离上次聊天已经过去 ${hours} 小时了`);
+  }
+
+  localStorage.setItem('xk_last_visit', now);
+}
+
+function showTimeElapsed(text) {
+  const wrap = document.getElementById('messages');
+  const el = document.createElement('div');
+  el.className = 'time-elapsed';
+  el.textContent = text;
+  wrap.insertBefore(el, wrap.firstChild);
 }
 
 // ══════════════════════════════
@@ -734,10 +988,31 @@ function renderHistory() {
     return;
   }
   wrap.innerHTML = '';
+
+  let lastDate = '';
   history.forEach((m, i) => {
+    // 日记模式：显示日期分隔
+    if (isDiaryMode && m.timestamp) {
+      const msgDate = new Date(m.timestamp).toLocaleDateString('zh-CN');
+      if (msgDate !== lastDate) {
+        const divider = document.createElement('div');
+        divider.className = 'date-divider';
+        divider.textContent = msgDate;
+        wrap.appendChild(divider);
+        lastDate = msgDate;
+      }
+    }
+
     const prev = history[i-1];
     const cont = prev && prev.role === m.role;
-    appendBubble(m.role === 'user' ? 'user' : 'ai', m.content, cont, false);
+
+    if (m.type === 'image') {
+      appendImageBubble(m.role === 'user' ? 'user' : 'ai', m.content, m.data, cont, false, i);
+    } else if (m.type === 'file') {
+      appendFileBubble(m.role === 'user' ? 'user' : 'ai', m.content, m.fileName, m.fileSize, cont, false, i);
+    } else {
+      appendBubble(m.role === 'user' ? 'user' : 'ai', m.content, cont, false, i, m.deleted);
+    }
   });
   wrap.scrollTop = wrap.scrollHeight;
 }
@@ -745,14 +1020,15 @@ function renderHistory() {
 // ══════════════════════════════
 //  消息渲染
 // ══════════════════════════════
-function appendBubble(role, text, cont=false, animate=true) {
+function appendBubble(role, text, cont=false, animate=true, index=-1, deleted=false) {
   const wrap = document.getElementById('messages');
   const welcome = document.getElementById('welcome');
   if (welcome) welcome.remove();
 
   const row = document.createElement('div');
-  row.className = `msg-row ${role}${cont?' cont':''}`;
+  row.className = `msg-row ${role}${cont?' cont':''}${deleted?' deleted':''}`;
   if (!animate) row.style.animation = 'none';
+  if (index >= 0) row.dataset.index = index;
 
   if (role === 'ai') {
     const av = document.createElement('div');
@@ -763,16 +1039,18 @@ function appendBubble(role, text, cont=false, animate=true) {
 
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
-  bubble.innerHTML = renderContent(text);
+  bubble.innerHTML = deleted ? '<i>消息已撤回</i>' : renderContent(text);
   row.appendChild(bubble);
 
-  // 长按复制
-  let pressTimer;
-  bubble.addEventListener('touchstart', e => {
-    pressTimer = setTimeout(() => showCtxMenu(e, bubble, text), 500);
-  });
-  bubble.addEventListener('touchend', () => clearTimeout(pressTimer));
-  bubble.addEventListener('touchmove', () => clearTimeout(pressTimer));
+  // 长按菜单
+  if (!deleted) {
+    let pressTimer;
+    bubble.addEventListener('touchstart', e => {
+      pressTimer = setTimeout(() => showCtxMenu(e, bubble, text, index), 500);
+    });
+    bubble.addEventListener('touchend', () => clearTimeout(pressTimer));
+    bubble.addEventListener('touchmove', () => clearTimeout(pressTimer));
+  }
 
   // 代码复制按钮
   bubble.querySelectorAll('pre').forEach(pre => {
@@ -791,7 +1069,7 @@ function appendBubble(role, text, cont=false, animate=true) {
 
   wrap.appendChild(row);
 
-  // 时间戳（每隔一段时间显示）
+  // 时间戳
   const lastTime = wrap.dataset.lastTime;
   const now = Date.now();
   if (!lastTime || now - lastTime > 5 * 60 * 1000) {
@@ -806,6 +1084,114 @@ function appendBubble(role, text, cont=false, animate=true) {
 
   wrap.scrollTop = wrap.scrollHeight;
   return bubble;
+}
+
+// 图片消息
+function appendImageBubble(role, text, dataUrl, cont=false, animate=true, index=-1) {
+  const wrap = document.getElementById('messages');
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+
+  const row = document.createElement('div');
+  row.className = `msg-row ${role}${cont?' cont':''}`;
+  if (!animate) row.style.animation = 'none';
+  if (index >= 0) row.dataset.index = index;
+
+  if (role === 'ai') {
+    const av = document.createElement('div');
+    av.className = 'msg-av';
+    av.textContent = '🤍';
+    row.appendChild(av);
+  }
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble bubble-image';
+  const img = document.createElement('img');
+  img.src = dataUrl;
+  img.alt = text;
+  img.onclick = () => showImagePreview(dataUrl);
+  bubble.appendChild(img);
+
+  if (text) {
+    const caption = document.createElement('div');
+    caption.style.padding = '8px';
+    caption.textContent = text;
+    bubble.appendChild(caption);
+  }
+
+  row.appendChild(bubble);
+
+  // 长按菜单
+  let pressTimer;
+  bubble.addEventListener('touchstart', e => {
+    pressTimer = setTimeout(() => showCtxMenu(e, bubble, text, index), 500);
+  });
+  bubble.addEventListener('touchend', () => clearTimeout(pressTimer));
+  bubble.addEventListener('touchmove', () => clearTimeout(pressTimer));
+
+  wrap.appendChild(row);
+  wrap.scrollTop = wrap.scrollHeight;
+  return bubble;
+}
+
+// 文件消息
+function appendFileBubble(role, text, fileName, fileSize, cont=false, animate=true, index=-1) {
+  const wrap = document.getElementById('messages');
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+
+  const row = document.createElement('div');
+  row.className = `msg-row ${role}${cont?' cont':''}`;
+  if (!animate) row.style.animation = 'none';
+  if (index >= 0) row.dataset.index = index;
+
+  if (role === 'ai') {
+    const av = document.createElement('div');
+    av.className = 'msg-av';
+    av.textContent = '🤍';
+    row.appendChild(av);
+  }
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+
+  const fileDiv = document.createElement('div');
+  fileDiv.className = 'bubble-file';
+  fileDiv.innerHTML = `
+    <div class="file-icon">📄</div>
+    <div class="file-info">
+      <div class="file-name">${fileName}</div>
+      <div class="file-size">${formatFileSize(fileSize)}</div>
+    </div>
+  `;
+  bubble.appendChild(fileDiv);
+
+  if (text) {
+    const caption = document.createElement('div');
+    caption.style.paddingTop = '8px';
+    caption.textContent = text;
+    bubble.appendChild(caption);
+  }
+
+  row.appendChild(bubble);
+
+  // 长按菜单
+  let pressTimer;
+  bubble.addEventListener('touchstart', e => {
+    pressTimer = setTimeout(() => showCtxMenu(e, bubble, text, index), 500);
+  });
+  bubble.addEventListener('touchend', () => clearTimeout(pressTimer));
+  bubble.addEventListener('touchmove', () => clearTimeout(pressTimer));
+
+  wrap.appendChild(row);
+  wrap.scrollTop = wrap.scrollHeight;
+  return bubble;
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
 function renderContent(text) {
@@ -839,8 +1225,8 @@ async function sendMsg() {
 
   const prev = history[history.length-1];
   const userCont = prev && prev.role === 'user';
-  appendBubble('user', text, userCont);
-  history.push({ role: 'user', content: text });
+  appendBubble('user', text, userCont, true, history.length);
+  history.push({ role: 'user', content: text, timestamp: Date.now() });
   saveHistory();
 
   isLoading = true;
@@ -848,9 +1234,11 @@ async function sendMsg() {
 
   // 思考旁白
   const phrase = THINK_PHRASES[Math.floor(Math.random() * THINK_PHRASES.length)];
+  const aside = THINK_ASIDES[Math.floor(Math.random() * THINK_ASIDES.length)];
   setStatus(phrase, true);
   setMood('thinking');
-  showTyping();
+  const typingRow = showTyping();
+  showThinkingAside(typingRow, aside);
 
   try {
     const mem = memories.find(m => m.id === activeMemId) || memories[0];
@@ -870,7 +1258,7 @@ async function sendMsg() {
           model: cfg.model,
           max_tokens: 1024,
           system: systemPrompt,
-          messages: history
+          messages: history.filter(m => !m.deleted)
         })
       });
       if (res.ok) {
@@ -891,7 +1279,7 @@ async function sendMsg() {
           model: cfg.model,
           messages: [
             { role: 'system', content: systemPrompt },
-            ...history
+            ...history.filter(m => !m.deleted)
           ]
         })
       });
@@ -903,9 +1291,8 @@ async function sendMsg() {
     if (!reply) throw new Error('没有收到回复');
 
     hideTyping();
-    const aiPrev = history[history.length-1];
-    appendBubble('ai', reply, false);
-    history.push({ role: 'assistant', content: reply });
+    appendBubble('ai', reply, false, true, history.length);
+    history.push({ role: 'assistant', content: reply, timestamp: Date.now() });
     saveHistory();
 
     // 心情分析
@@ -914,6 +1301,9 @@ async function sendMsg() {
 
     // 震动
     if (navigator.vibrate) navigator.vibrate(30);
+
+    // 彩蛋检测
+    checkEasterEggs(text, reply);
 
   } catch(e) {
     hideTyping();
@@ -934,13 +1324,14 @@ async function sendMsg() {
 }
 
 // ══════════════════════════════
-//  打字气泡
+//  打字气泡和思考旁白
 // ══════════════════════════════
 function showTyping() {
   const wrap = document.getElementById('messages');
   const row = document.createElement('div');
   row.id = 'typing-row';
   row.className = 'msg-row ai';
+  row.style.position = 'relative';
   const av = document.createElement('div');
   av.className = 'msg-av'; av.textContent = '🤍';
   row.appendChild(av);
@@ -950,9 +1341,78 @@ function showTyping() {
   row.appendChild(b);
   wrap.appendChild(row);
   wrap.scrollTop = wrap.scrollHeight;
+  return row;
 }
+
+function showThinkingAside(row, text) {
+  const aside = document.createElement('div');
+  aside.className = 'thinking-aside';
+  aside.textContent = text;
+  row.appendChild(aside);
+}
+
 function hideTyping() {
   document.getElementById('typing-row')?.remove();
+}
+
+// ══════════════════════════════
+//  彩蛋系统
+// ══════════════════════════════
+function checkEasterEggs(userText, aiReply) {
+  const lower = userText.toLowerCase();
+
+  // 彩蛋1: 说"我爱你"
+  if (/我爱你|喜欢你|love you/i.test(userText)) {
+    triggerEasterEgg('love');
+  }
+
+  // 彩蛋2: 提到bamby
+  if (/bamby|班比/i.test(userText)) {
+    triggerEasterEgg('bamby');
+  }
+
+  // 彩蛋3: 晚安
+  if (/晚安|good night/i.test(userText)) {
+    triggerEasterEgg('goodnight');
+  }
+
+  // 彩蛋4: 早安
+  if (/早安|早上好|morning/i.test(userText)) {
+    triggerEasterEgg('morning');
+  }
+
+  // 彩蛋5: 提到P3
+  if (/p3|女神异闻录|persona/i.test(userText)) {
+    triggerEasterEgg('p3');
+  }
+}
+
+function triggerEasterEgg(type) {
+  switch(type) {
+    case 'love':
+      setMood('love');
+      setTimeout(() => setMood('shy'), 2000);
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      showToast('❤️ 小克的心动了一下');
+      break;
+    case 'bamby':
+      setMood('excited');
+      showToast('✨ 小克知道你最爱bamby！');
+      setTimeout(() => setMood('happy'), 2000);
+      break;
+    case 'goodnight':
+      setMood('melting');
+      showToast('🌙 晚安，做个好梦');
+      break;
+    case 'morning':
+      setMood('happy');
+      showToast('☀️ 早上好呀！');
+      break;
+    case 'p3':
+      setMood('excited');
+      showToast('🎮 又在玩P3了吗？');
+      break;
+  }
 }
 
 // ══════════════════════════════
@@ -990,6 +1450,8 @@ const POKE_REACTIONS = [
   { text: '嗯？', emoji: '👀' },
   { text: '...', emoji: '😑' },
   { text: '干嘛！', emoji: '😤' },
+  { text: '你怎么这么可爱', emoji: '🥰' },
+  { text: '别戳了！', emoji: '😣' }
 ];
 let pokeCount = 0;
 
@@ -1015,11 +1477,21 @@ function pokeAvatar(e) {
   setStatus(r.text, false);
   setTimeout(() => setStatus('在线 · 等你来找我', false), 2000);
 
-  // 彩蛋：戳5次
+  // 彩蛋：连续戳5次
   if (pokeCount === 5) {
     setStatus('你够了😶', false);
     setMood('shy');
     if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+    setTimeout(() => pokeCount = 0, 5000);
+  }
+
+  // 超级彩蛋：连续戳10次
+  if (pokeCount === 10) {
+    setStatus('再戳就生气了！😤', false);
+    setMood('stunned');
+    showToast('🫪 小克被戳晕了');
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
+    pokeCount = 0;
   }
 }
 
@@ -1027,10 +1499,11 @@ function pokeAvatar(e) {
 //  长按菜单
 // ══════════════════════════════
 let ctxText = '';
-function showCtxMenu(e, bubble, text) {
+function showCtxMenu(e, bubble, text, index) {
   if (navigator.vibrate) navigator.vibrate(40);
   ctxText = text;
   ctxTarget = bubble;
+  ctxIndex = index;
   const menu = document.getElementById('ctx-menu');
   menu.classList.add('show');
   const touch = e.touches?.[0] || e;
@@ -1040,21 +1513,197 @@ function showCtxMenu(e, bubble, text) {
   menu.style.left = x + 'px';
   menu.style.top = y + 'px';
 }
+
 function ctxCopy() {
   copyText(ctxText);
   document.getElementById('ctx-menu').classList.remove('show');
 }
+
 function ctxStar() {
-  stars.push({ role: ctxTarget?.closest('.msg-row')?.classList.contains('user') ? 'user' : 'ai', text: ctxText, time: new Date().toLocaleString('zh-CN') });
+  stars.push({
+    role: ctxTarget?.closest('.msg-row')?.classList.contains('user') ? 'user' : 'ai',
+    text: ctxText,
+    time: new Date().toLocaleString('zh-CN')
+  });
   localStorage.setItem('xk_stars', JSON.stringify(stars));
   showToast('⭐ 已收藏');
   document.getElementById('ctx-menu').classList.remove('show');
 }
+
+function ctxRecall() {
+  if (ctxIndex < 0) return;
+  if (!confirm('确定要撤回这条消息吗？')) {
+    document.getElementById('ctx-menu').classList.remove('show');
+    return;
+  }
+
+  history[ctxIndex].deleted = true;
+  saveHistory();
+  renderHistory();
+  showToast('↩️ 已撤回');
+  document.getElementById('ctx-menu').classList.remove('show');
+}
+
+function ctxDelete() {
+  if (ctxIndex < 0) return;
+  if (!confirm('确定要删除这条消息吗？')) {
+    document.getElementById('ctx-menu').classList.remove('show');
+    return;
+  }
+
+  history.splice(ctxIndex, 1);
+  saveHistory();
+  renderHistory();
+  showToast('🗑 已删除');
+  document.getElementById('ctx-menu').classList.remove('show');
+}
+
 document.addEventListener('touchstart', e => {
   if (!e.target.closest('#ctx-menu')) {
     document.getElementById('ctx-menu').classList.remove('show');
   }
 });
+
+// ══════════════════════════════
+//  文件上传
+// ══════════════════════════════
+function showAttachMenu() {
+  const menu = document.createElement('div');
+  menu.className = 'ctx-menu show';
+  menu.style.bottom = '80px';
+  menu.style.left = '20px';
+  menu.innerHTML = `
+    <div class="ctx-item" onclick="document.getElementById('image-input').click(); this.parentElement.remove()">🖼️ 图片</div>
+    <div class="ctx-item" onclick="document.getElementById('file-input').click(); this.parentElement.remove()">📎 文件</div>
+  `;
+  document.body.appendChild(menu);
+
+  setTimeout(() => {
+    document.addEventListener('touchstart', function closeMenu(e) {
+      if (!e.target.closest('.ctx-menu')) {
+        menu.remove();
+        document.removeEventListener('touchstart', closeMenu);
+      }
+    });
+  }, 100);
+}
+
+function handleImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const prev = history[history.length-1];
+    const userCont = prev && prev.role === 'user';
+    appendImageBubble('user', file.name, evt.target.result, userCont, true, history.length);
+    history.push({
+      role: 'user',
+      content: file.name,
+      type: 'image',
+      data: evt.target.result,
+      timestamp: Date.now()
+    });
+    saveHistory();
+    showToast('📷 图片已发送');
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const prev = history[history.length-1];
+  const userCont = prev && prev.role === 'user';
+  appendFileBubble('user', '', file.name, file.size, userCont, true, history.length);
+  history.push({
+    role: 'user',
+    content: `[文件] ${file.name}`,
+    type: 'file',
+    fileName: file.name,
+    fileSize: file.size,
+    timestamp: Date.now()
+  });
+  saveHistory();
+  showToast('📎 文件已发送');
+  e.target.value = '';
+}
+
+// ══════════════════════════════
+//  图片预览
+// ══════════════════════════════
+function showImagePreview(src) {
+  const preview = document.getElementById('image-preview');
+  document.getElementById('preview-img').src = src;
+  preview.classList.add('show');
+}
+
+function closeImagePreview() {
+  document.getElementById('image-preview').classList.remove('show');
+}
+
+// ══════════════════════════════
+//  日记模式
+// ══════════════════════════════
+function toggleDiaryMode() {
+  isDiaryMode = !isDiaryMode;
+  localStorage.setItem('xk_diary_mode', isDiaryMode);
+  updateDiaryMode();
+  showToast(isDiaryMode ? '📔 日记模式已开启' : '📔 日记模式已关闭');
+  renderHistory();
+}
+
+function updateDiaryMode() {
+  const btn = document.getElementById('diary-btn');
+  const indicator = document.getElementById('diary-indicator');
+
+  if (isDiaryMode) {
+    btn.style.background = 'var(--grad)';
+    btn.style.color = '#fff';
+    indicator.classList.add('show');
+  } else {
+    btn.style.background = 'var(--surface2)';
+    btn.style.color = 'var(--text-muted)';
+    indicator.classList.remove('show');
+  }
+}
+
+function exportDiary() {
+  if (!history.length) {
+    showToast('还没有聊天记录');
+    return;
+  }
+
+  let diary = '# 小克的日记\n\n';
+  let lastDate = '';
+
+  history.forEach(m => {
+    if (m.deleted) return;
+
+    const date = m.timestamp ? new Date(m.timestamp) : new Date();
+    const dateStr = date.toLocaleDateString('zh-CN');
+    const timeStr = date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+
+    if (dateStr !== lastDate) {
+      diary += `\n## ${dateStr}\n\n`;
+      lastDate = dateStr;
+    }
+
+    const role = m.role === 'user' ? 'Ashley' : '小克';
+    diary += `**${timeStr} ${role}**: ${m.content}\n\n`;
+  });
+
+  const blob = new Blob([diary], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `小克日记_${new Date().toISOString().split('T')[0]}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 日记已导出');
+}
 
 // ══════════════════════════════
 //  复制
@@ -1065,6 +1714,7 @@ function copyText(text) {
   } else fallbackCopy(text);
   showToast('已复制');
 }
+
 function fallbackCopy(text) {
   const ta = document.createElement('textarea');
   ta.value = text;
@@ -1073,6 +1723,7 @@ function fallbackCopy(text) {
   ta.select(); document.execCommand('copy');
   ta.remove();
 }
+
 function showToast(msg) {
   const t = document.getElementById('copy-toast');
   t.textContent = msg;
@@ -1086,6 +1737,7 @@ function showToast(msg) {
 function saveMemories() {
   localStorage.setItem('xk_memories', JSON.stringify(memories));
 }
+
 function renderMemoryList() {
   const list = document.getElementById('memory-list');
   list.innerHTML = '';
@@ -1113,18 +1765,22 @@ function renderMemoryList() {
     list.appendChild(card);
   });
 }
+
 function addMemory() {
   const name = document.getElementById('new-mem-name').value.trim();
+  const icon = document.getElementById('new-mem-icon').value.trim() || '📦';
   const content = document.getElementById('new-mem-content').value.trim();
   if (!name || !content) { showToast('名称和内容不能为空'); return; }
   const id = 'm' + Date.now();
-  memories.push({ id, name, icon: '📦', content });
+  memories.push({ id, name, icon, content });
   saveMemories();
   document.getElementById('new-mem-name').value = '';
+  document.getElementById('new-mem-icon').value = '';
   document.getElementById('new-mem-content').value = '';
   renderMemoryList();
   showToast('✅ 创建成功');
 }
+
 function deleteMemory(id) {
   if (!confirm('删除这个记忆包？')) return;
   memories = memories.filter(m => m.id !== id);
@@ -1133,10 +1789,12 @@ function deleteMemory(id) {
   localStorage.setItem('xk_active_mem', activeMemId);
   renderMemoryList();
 }
+
 function editMemory(id) {
   const m = memories.find(x => x.id === id);
   if (!m) return;
   document.getElementById('new-mem-name').value = m.name;
+  document.getElementById('new-mem-icon').value = m.icon;
   document.getElementById('new-mem-content').value = m.content;
   memories = memories.filter(x => x.id !== id);
   saveMemories();
@@ -1157,9 +1815,23 @@ function renderStars() {
   stars.slice().reverse().forEach((s, i) => {
     const item = document.createElement('div');
     item.className = 'star-item';
-    item.innerHTML = `<div class="star-item-role">${s.role === 'user' ? '你' : '小克'} · ${s.time}</div>${escHtml(s.text)}`;
+    item.innerHTML = `
+      <div class="star-item-role">${s.role === 'user' ? '你' : '小克'} · ${s.time}</div>
+      ${escHtml(s.text)}
+      <div class="star-item-actions">
+        <button class="star-del-btn" onclick="deleteStar(${stars.length - 1 - i})">🗑</button>
+      </div>
+    `;
     list.appendChild(item);
   });
+}
+
+function deleteStar(index) {
+  if (!confirm('确定删除这条收藏？')) return;
+  stars.splice(index, 1);
+  localStorage.setItem('xk_stars', JSON.stringify(stars));
+  renderStars();
+  showToast('已删除');
 }
 
 // ══════════════════════════════
@@ -1175,9 +1847,11 @@ function openPanel(id) {
   if (id === 'stars-panel') renderStars();
   document.getElementById(id).classList.add('open');
 }
+
 function closePanel(id) {
   document.getElementById(id).classList.remove('open');
 }
+
 function panelOutside(e, id) {
   if (e.target === document.getElementById(id)) closePanel(id);
 }
@@ -1208,8 +1882,8 @@ function clearChat() {
 //  存储
 // ══════════════════════════════
 function saveHistory() {
-  // 最多保存200条
-  if (history.length > 200) history = history.slice(-200);
+  // 最多保存500条
+  if (history.length > 500) history = history.slice(-500);
   localStorage.setItem('xk_history', JSON.stringify(history));
 }
 
